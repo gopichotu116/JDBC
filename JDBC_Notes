@@ -1,0 +1,305 @@
+JDBC(Java DataBase Connectivity):-
+--------------------------------
+1)JDBC is an API and it is used to connect the java program with the database
+  and it is used to convert java object to database understandable values and 
+  database values to java understandable objects.
+2)By using JDBC API we can perform database operations from java class/Program.
+
+            Java Object    J    values
+            ----------->      ---------->  
+  Java                     D                     DataBase
+            Java Object         Values
+           <------------   B  <-----------        
+                           
+                           C
+                           
+3)To perform database operations by using JDBC we need to follow following steps
+    i) Import package
+   ii) Load and Register the Driver
+  iii) Establish the connection
+   iV) Create a statement/query
+    V) Execute the statement
+   Vi) Process the result
+  Vii) Close the connection
+  
+  
+i) IMPORTING THE PACKAGES:-
+   ------------------------
+   => JDBC API is included in JRE system library and to perform database operations
+      we need to add database libraries to our project.
+      
+   => To add a new library we need to use libraries option from java build Path
+      configuration.
+      
+   => Java build path->this option can be used for every aspect of the java 
+      project configuration.
+      
+   => Libraries -> this option from build path is use to manage project libraries.
+      We can add,remove,edit project libraries from this option
+      
+   => The downloaded library of the database as a JAR file can be added to the 
+      project by using libraries option.
+      
+   => Alternate way of adding a library when we are working with Maven project:-
+      is by adding Maven dependence in pom.xml file
+      
+ii) LOAD & REGISTER THE DRIVER:-
+   -------------------------------
+   -> Driver is a software or a program which is use to provide configuration
+      or the information to the current program while communicating with and 
+      an external program
+      
+   -> In java when we are communicating with database by using JDBC library ,
+      database driver is a class(Type-4 driver or Thin Driver)
+      
+   -> To load a driver we can use new keyword and create an object of the driver
+      class and to register the driver we need to use a static method as called
+      registerDriver(),which accepts an object of driver as an argument from
+      DriverManager class  
+      eg:- 
+          Driver driver=new Driver();
+          DriverManager.registerDriver(driver);
+          
+   -> Constructor of a Driver class and registerDriver() throws "SQLException".
+   
+   -> Second way to load and register the driver is by using a static method 
+      called as forName() which accepts fully qualified name of the class as 
+      String argument.forName() from class Class. forName() method throws 
+      "ClassNotFoundException".
+      Eg:-
+         Class.forName("com.mysql.cj.jdbc.Driver");
+                                   |
+                  fully qualified name for MySql Driver class
+                  
+iii) ESTABLISH THE CONNECTION:-
+    ---------------------------
+   -> After loading and register the driver of the database,we can establish the
+      connection to the database.
+   -> For this we have static method called as getConnection() from DriverManager
+      class.
+      DriverManager:-
+      ---------------
+      * DriverManager is a concrete class from java.sql package and this class 
+        is responsible for management of database information.
+       
+      getConnection():-
+      -----------------
+     -> It is a static overloaded method from DriverManager class,this method 
+        accepts database URL,userName,password and establish the connection with 
+        the specified database.
+     -> After the connection is establish getConnection() return an object of 
+        implementing class of Connection interface.
+        
+      * getConnection() is an overloaded method with 3 different signatures
+        
+  1.      public static Connection getConnection(String URL,String userName,String password)
+          {
+              
+          }
+      * this getConnection() accepts database URL,userName,password as 3 different string 
+        argument and by using these arguments it connects to the database and returns an
+        object of Connection interface type
+        
+  2.    public static Connection getConnection(String url)
+        {
+        }
+        
+     *  This getConnection() method accepts only database URL as an argument 
+        and we need to assign database userName and password to the url by using
+        query string.
+        
+        Why Using Query String?
+        ------------------------
+     *  To assign the data in a string object,we need to provide the data in 
+        key and value pairs.
+     *  For initializing query string we need to use '?' followed by the 
+        key and then to assign value for the key we use '=' and then provide 
+        the data.
+     *  If there are multiple key value pairs then we will use '&' symbol to
+        separate them
+        Eg:- 
+          String url="jdbc:mysql://localhost:3306/m10_e3?user=root&password=root";
+          Connection conn=DriverManager.getConnection(url);
+          
+  3.    public static Connection getConnection(String url,Properties info)
+        {
+        }
+     * This getConnction() method accepts database url as a string argument
+       and an object of properties as an argument.
+     * This method uses the database url, userName and password details from 
+       properties object to get connected with the specify database.
+       
+        Properties Class:-
+       -------------------
+       => It is a class from java.util package.This class is use to save the
+          data in key value pairs.To set the data we need to use a non-static
+          method called setProperty() from Properties class.
+          setProperty() method:-
+          ---------------------
+          -> This is a non-static method from Property class and it is use to
+             assign a data or the property(behaviour) inside property Object.
+             This method is accepts String key and value as an argument which 
+             will be assign or saved in properties object
+     -> Example of getting connection with the database by using this getConnection():-
+        
+            String url="jdbc:mysql://localhost:3306/m10_e3";
+			Properties pro = new Properties();
+			pro.setProperty("user", "root");
+			pro.setProperty("password", "root");
+			Connection conn = DriverManager.getConnection(url, pro);
+			
+      => Properties can also understand the data from a file with dot properties
+         extension.To assign the data from dot(.)properties file first we need
+         to load the data from the file to the java program by using
+         FileInputStream class.
+      => After we get FileInputStream class's object we need to use a non-static
+         method called load() from properties class to load the data from 
+         FileInputStream object to Properties object.
+         
+         load():-
+         --------
+         -> It is a non-static method from properties class which accepts an 
+            object of FileInputStream as an argument. And this method is use 
+            to assign the data from FileInputStream object to the current 
+            properties object.
+         File with properties extension:-
+         --------------------------------
+         -> It is a simple file which is use to store the data in key value pairs,
+            where key and value is separated by colon(:) and we shouldn't 
+            provide (;),(,),(.) or any symbol to mark the end of the line in properties
+            file.
+            
+		
+	-> Alternate example of getting connected with database by using this 
+	   getConnection() where we can accessing userName and password from
+	   external file.
+		        ___________________________
+		       |                           |
+		       |  user:root                |
+		       |  password:root            |
+		       |___________________________|
+	               mydbinfo.properties
+	           
+        String url="jdbc:mysql://localhost:3306/m10_e3";	
+		FileInputStream stream =new FileInputStream("mydbinfo.properties");
+        Properties pro = new Properties();
+		pro.load(stream);
+		Connection conn = DriverManager.getConnection(url, pro);
+   => All 3 getConnection methods throws 'SQLException'.	
+           
+      Connection:-
+      -------------
+    * It is an interface from java.sql package and this interface is responsible
+      for management of database connection.
+  
+iV) CREATE A STATEMENTS:-
+    ----------------------
+  => After we are connected to the database now we can perform database operations
+     from the java program.To perform the database operation from the java class
+     we need an object Statement interface
+     Statement:-
+     ----------
+     -> Statement is an interface from java.sql package.This interface is use for
+        performing database operation from the java program.A non-static method
+        called createStatement() from Connection interface return an object of
+        implementing class of Statement interface.
+       
+       Eg:- Connection conn=DriverManager.getConnection(url,user,pass);
+            Statement stmt=conn.createStatement();
+  
+V) EXECUTE THE STATEMENT:-
+   -----------------------
+   => In this step we are going to perform the database operation by our java
+      program.And for doing it we need to use non-static method like execute(),
+      executeUpdate() etc.. from Statement interface which accepts String database
+      query as an argument and this methods are used to execute the provided 
+      query in the database.
+  
+       Eg:- 
+            Statement stmt=conn.createStatement();
+            String query="Select * from student";
+            stmt.execute(query);
+      _________________________________________________________________________________________________________________
+     |                                                                                                                 |
+     |        execute()           |      executeUpdate()                    |     executeQuery()
+     |-----------------------------------------------------------------------------------------------------------------|
+     | use for    return type     | use for         return type             | use for    return type
+     |-----------------------------------------------------------------------------------------------------------------|
+     | select       true          | Insert           int                    |  select    an object of ResultSet,
+     |                                                                                   is used to access the data    |
+     | insert  |                  | update          int value is represents |            returned by current select
+     | update  |--> false                           no.of rows changed                   query in data base            |
+     | delete  |                  | delete          due to query            |
+     |_________________________________________________________________________________________________________________|
+  
+Vi) PROCESS THE RESULT:-
+    ---------------------
+   => Due to the executed query we will get a result from the table or the 
+      database and in this step we will process the result(only select query
+      returns data from the database).
+   => when we execute select query an object of ResultSet is created to use 
+      resultSet object we have a method from statement interface called 
+      getResultSet() or we can use a method called executeQuery() from 
+      Statement interface.
+    ResultSet:-
+    --------------
+     -> ResultSet is an interface from java.sql package.This interface is
+        used for accessing the data from the data base.To get the ResultSet
+        object we have a non-static method called as getResultSet() from 
+        Statement interface or we will use a method called executeQuery().
+    Using ResultSet object:-
+    -----------------------
+    -> To access the data returned by data base, by default resultSet object
+       will be pointing to the 0th row and we need to shift the pointer of 
+       resultSet to the next row by using next() method.
+  
+     next():-
+     -------
+     -> It is a non-static method from ResultSet interface.
+     -> It is used to shift the pointer of the resultSet to the next row of
+        data,addition to this next() also checks wheather their is a data in
+        the current row that is pointed by resultSet.
+     -> If there is a data next() method returns true or false.
+     -> if their is a data(ResultSet can only access the data to the current 
+        pointed row after we are iterating the data row vice by using next() 
+        from ResultSet,we can use get() which is followed by the data type to
+        access the data from each column of current row
+     getxxxx():-
+     ---------
+     -> xxxx -> data type of accessing data from the column.
+     -> It is a non-static method from ResultSet interface and it accepts the 
+        integer column index or String column name as an argument & it is use to
+        return the column data whose index or name is provided as an argument
+        to this method.If we are reading integer data from the column we need
+        to use getInt() & if we are reading String type data we need to use 
+        getString(),so the data type of get() will be the type of data will be
+        dependent on type of the data 
+     
+  
+Vii) Close the connection:-
+----------------------------
+   -> To close the connection with the data base from the java program 
+      we need to use a non-static method called close from Connection 
+      interface.
+   -> close():-
+      -------
+      -> It is a non-static method from connection interface & it use to close
+         the server port of the database which was used for communication b/w
+         java program & database
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
